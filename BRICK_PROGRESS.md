@@ -62,7 +62,69 @@ Pytest: 66 passed in 0.08s
 
 ## Brick 2: Static Layout Renderer
 
-**Status:** NOT STARTED
+**Status:** COMPLETE
+**Date:** 2026-02-07
+
+### What Was Built
+
+| File | Purpose |
+|------|---------|
+| `assets/fonts/JetBrainsMono-Regular.ttf` | Bundled code font (SIL Open Font License) |
+| `assets/fonts/JetBrainsMono-Bold.ttf` | Bundled heading/branding font |
+| `assets/fonts/OFL.txt` | JetBrains Mono license file |
+| `src/bucket_sort_viz/config.py` | Extended with screen, colors, fonts, timing, layout constants |
+| `src/bucket_sort_viz/view/__init__.py` | View package marker |
+| `src/bucket_sort_viz/view/renderer.py` | `Renderer` class: Pygame window init, layout builder, READY state draw loop |
+| `src/bucket_sort_viz/view/elements.py` | `CircleElement` (circle + value text) and `BucketRegion` (outlined rect + label) |
+| `src/bucket_sort_viz/view/code_panel.py` | `CodePanel`: pseudocode display, active-line highlight, "LIGHTNING LABS" branding |
+| `src/bucket_sort_viz/view/effects.py` | Stub for glow/particle effects (Brick 8) |
+
+### What It Shows (READY State)
+
+- **Input row:** Gray circles with numeric values, evenly spaced across the top
+- **Bucket region:** Outlined rectangles with range labels (e.g., "0–24", "25–49") below each bucket
+- **Code panel:** Dark bottom panel with "LIGHTNING LABS" branding (cyan), "ALGORITHM LOGIC" header, and 11 pseudocode lines with syntax-aware coloring
+- **Layout:** Adapts to all 3 presets (4, 8, 10 buckets) and 10–15 elements
+
+### Config Constants Added
+
+| Section | Constants |
+|---------|-----------|
+| Paths | `PROJECT_ROOT`, `ASSETS_DIR`, `FONTS_DIR`, `OUTPUT_DIR` |
+| Screen | `SCREEN_WIDTH=1694`, `SCREEN_HEIGHT=924`, `FPS=30`, `WINDOW_TITLE` |
+| Colors | Full `COLORS` dict (17 named colors across backgrounds, text, phases, UI, elements) |
+| Fonts | `FONTS` dict (8 font specs) + `load_font()` with system fallback |
+| Timing | `TIMING` dict (12 animation timing values) + `timing_to_frames()` |
+| Layout | `INPUT_ROW_Y`, `BUCKET_TOP_Y`, `BUCKET_HEIGHT`, `PANEL_TOP_Y`, `SIDE_MARGIN`, `BUCKET_GAP` |
+
+### Validation Results
+
+```
+Ruff:   All checks passed!
+Pytest: 66 passed in 0.06s (all Brick 1 tests still green)
+Visual: Pygame window launches and displays READY state correctly
+```
+
+### How to Verify Visually
+
+```powershell
+cd d:\Visual_Learning_Sorting\bucket-sort-viz
+uv run python -c "
+from bucket_sort_viz.view.renderer import Renderer
+from bucket_sort_viz.model.bucket_sort import bucket_sort
+from bucket_sort_viz.presets import PRESETS
+preset = PRESETS['small']  # Try 'medium' or 'large' too
+original, _, _ = bucket_sort(preset, count=10, seed=42)
+Renderer(preset, original).run_static()
+"
+```
+Press ESC or close window to exit.
+
+### Notes
+
+- `config.py` now uses `from __future__ import annotations` + `TYPE_CHECKING` for the `pygame.font.Font` return type annotation (avoids ruff F821 with lazy pygame import)
+- Font loading uses bundled JetBrains Mono with fallback to system Consolas/Courier New
+- Brick 3 (drawable classes) is effectively merged into Brick 2 — `CircleElement` and `BucketRegion` are already functional
 
 ---
 
